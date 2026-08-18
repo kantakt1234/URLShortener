@@ -8,11 +8,20 @@ from app.urls.crud import (
     create_url,
     increment_clicks,
     get_by_original_url,
+    get_all,
+    delete_url_by_id,
 )
 from app.core.db import get_session
 from app.urls.schemas import URLOut
 
 router = APIRouter()
+
+
+@router.get("/")
+async def get_all_urls(session: AsyncSession = Depends(get_session)) -> list[URLOut]:
+    urls = await get_all(session)
+    result = [URLOut.model_validate(url) for url in urls]
+    return result
 
 
 @router.get("/{token}")
@@ -44,3 +53,14 @@ async def create_shorted_url(
         result = URLOut.model_validate(url)
 
     return result
+
+
+@router.delete("/{url_id}")
+async def delete_url(url_id: int, session: AsyncSession = Depends(get_session)):
+    result = await delete_url_by_id(url_id, session)
+    if result:
+        return {"result": "success"}
+
+    raise HTTPException(
+        status_code=status.HTTP_404_NOT_FOUND,
+    )
