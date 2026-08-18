@@ -4,7 +4,11 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
-    DB_URL: str
+    DB_USER: str
+    DB_PASSWORD: str
+    DB_NAME: str
+    DB_HOST: str
+    DB_PORT: str
 
     model_config = SettingsConfigDict(
         env_file=os.path.join(
@@ -14,3 +18,7 @@ class Settings(BaseSettings):
 
 
 settings = Settings()
+
+
+def get_db_link():
+    return f"postgresql+asyncpg://{settings.DB_USER}:{settings.DB_PASSWORD}@{settings.DB_HOST}:{settings.DB_PORT}/{settings.DB_NAME}"
